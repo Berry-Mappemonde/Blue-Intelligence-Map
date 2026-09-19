@@ -61,6 +61,13 @@ describe("journalFormat", () => {
     assert.equal(formatJournalEntry({ kind: "amp", t: "2026-05-16T07:00:00Z", event: "nearby", name: "Pertuis Charentais", nm: 3.6 }, "fr").text, "Aire marine protégée à portée : Pertuis Charentais (3,6 nm)");
   });
 
+  it("lot D: a logbook chat exchange shows its summary", () => {
+    const c = formatJournalEntry({ kind: "chat", t: "2026-09-19T18:00:00Z", question: "Quel vent ?", answer: "Vent 14 kn de OSO.", summary: "Quel vent ? → Vent 14 kn de OSO." }, "fr");
+    assert.equal(c.icon, "💬");
+    assert.equal(c.text, "Quel vent ? → Vent 14 kn de OSO.");
+    assert.equal(formatJournalEntry({ kind: "chat", t: "2026-09-19T18:00:00Z", question: "Q", answer: "A" }, "en").text, "Q → A");
+  });
+
   it("lot A: ports of entry passed and remarkable weather derived from the GRIB", () => {
     assert.equal(formatJournalEntry({ kind: "poe", t: "2026-05-15T10:00:00Z", event: "passed", name: "La Rochelle - La Pallice", nm: 1.6 }, "fr").text, "Port d’entrée passé : La Rochelle - La Pallice (1,6 nm)");
     assert.equal(formatJournalEntry({ kind: "poe", t: "2026-05-15T10:00:00Z", event: "passed", name: "Porto" }, "en").text, "Port of entry passed: Porto");

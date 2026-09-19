@@ -20,6 +20,7 @@ import { useIciDossier } from "./hooks/useIciDossier.js";
 import { useIciAlong } from "./hooks/useIciAlong.js";
 import { useMomentCards } from "./hooks/useMomentCards.js";
 import { useEscaleSheet } from "./hooks/useEscaleSheet.js";
+import { useLogbookChat } from "./hooks/useLogbookChat.js";
 import { FreeMomentBlock, MomentNowCard } from "./components/MomentCards.jsx";
 import { dayMonth, expeditionStory } from "./engine/expeditionStory.js";
 import { sumRainHours } from "./engine/eventRules.js";
@@ -512,6 +513,23 @@ export default function App() {
     if (escaleStop) autoSheetRef.current = escaleStop.name;
     setEscaleStop(null);
   }, [escaleStop]);
+  // Chatbot journal de bord (lot D): the client adds what only it knows —
+  // the view, the film boat in Simulation, the polar, the skipper's orders.
+  const chatContextRef = useRef(null);
+  chatContextRef.current = {
+    view: isSuivre ? "suivre" : "simulation",
+    boat: !isSuivre && sample && Number.isFinite(sample.lat)
+      ? { lat: sample.lat, lon: sample.lon, iso: clockSample?.iso || null }
+      : null,
+    polar: polarData ? { boat: polarData.boat_name || polarData.name || null, loaM: skipper.orders?.boat?.loaM, draftM: skipper.orders?.boat?.draftM, planningKn: skipper.orders?.values?.planningKn } : null,
+    orders: !skipper.orders
+      ? null
+      : { profile: skipper.orders.profile, comfort: skipper.orders.comfort, horizonH: skipper.orders.knobs?.horizonH, values: skipper.orders.values },
+    leg: hudLeg ? { from: hudLeg.fromStop, to: hudLeg.toStop, remainingNm: hudLeg.remainingNm, etaHours: hudLeg.etaHours, speedKnots: hudLeg.speedKnots } : null,
+  };
+  const chatContextFn = useCallback(() => chatContextRef.current, []);
+  const chat = useLogbookChat({ lang, contextFn: chatContextFn });
+
   useEffect(() => {
     if (!isSuivre || !atQuay || !clockSample || !Number.isFinite(clockSample.lat)) return;
     let best = null;
@@ -1466,6 +1484,8 @@ export default function App() {
         escaleStop={escaleStop}
         escaleSheet={escaleSheet}
         onEscaleClose={closeEscaleSheet}
+        chat={chat}
+        onChatAsk={chat.ask}
       />
 
       <ToolsSidebar

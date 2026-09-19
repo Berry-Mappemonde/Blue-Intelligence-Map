@@ -25,6 +25,7 @@ export default defineConfig({
       "/api/v1": { target: "http://127.0.0.1:8010", changeOrigin: true },
       "/voyage": { target: "http://127.0.0.1:8010", changeOrigin: true },
       "/escale": { target: "http://127.0.0.1:8010", changeOrigin: true },
+      "/logbook": { target: "http://127.0.0.1:8010", changeOrigin: true },
       "/bi": {
         target: process.env.BI_PROXY_TARGET || "https://blueintelligence.online",
         changeOrigin: true,

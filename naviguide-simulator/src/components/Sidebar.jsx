@@ -5,6 +5,7 @@ import { SimulationPanel } from "./SimulationPanel";
 import { JournalPanel } from "./JournalPanel.jsx";
 import { FreeMomentBlock, MomentNowCard } from "./MomentCards.jsx";
 import { EscaleSheet } from "./EscaleSheet.jsx";
+import { LogbookChat } from "./LogbookChat.jsx";
 import { VIEW_SIMULATION, VIEW_SUIVRE } from "../constants/viewMode.js";
 import { canFocus, entityLinks } from "../engine/briefingLinks.js";
 
@@ -224,6 +225,7 @@ export const Sidebar = memo(function Sidebar({
   momentNow = null, momentNowLeft = 0, onMomentDismiss,
   momentFree = null, momentFreeLeft = 0, onMomentNext,
   escaleStop = null, escaleSheet = null, onEscaleClose,
+  chat = null, onChatAsk,
 }) {
   const { t } = useLang();
   const isSimulation = view === VIEW_SIMULATION;
@@ -364,6 +366,10 @@ export const Sidebar = memo(function Sidebar({
 
           {isSuivre && !isDrawing ? (
             <JournalPanel journal={journal} loading={journalLoading} error={journalError} />
+          ) : null}
+
+          {!isDrawing && chat ? (
+            <LogbookChat messages={chat.messages} pending={chat.pending} error={chat.error} onAsk={onChatAsk} />
           ) : null}
 
           {officialFallback && (

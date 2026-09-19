@@ -47,7 +47,7 @@ export function formatDay(day, lang = "fr") {
   });
 }
 
-export const KIND_ICON = Object.freeze({ position: "📍", stop: "⚓", grib: "🌬", note: "📝", zee: "🛂", amp: "🐟", poe: "🛃", wx: "⚠️" });
+export const KIND_ICON = Object.freeze({ position: "📍", stop: "⚓", grib: "🌬", note: "📝", zee: "🛂", amp: "🐟", poe: "🛃", wx: "⚠️", chat: "💬" });
 
 /** One journal entry → { icon, time, text }. Unknown kinds keep their raw kind. */
 export function formatJournalEntry(entry, lang = "fr") {
@@ -117,6 +117,9 @@ export function formatJournalEntry(entry, lang = "fr") {
       text = en ? `Port of entry passed: ${name}${nm}` : `Port d’entrée passé : ${name}${nm}`;
       break;
     }
+    case "chat":
+      text = e.summary || (e.question ? `${e.question} → ${e.answer || ""}` : (e.answer || ""));
+      break;
     case "wx": {
       const parts = [];
       if (Number.isFinite(e.windKnots)) {

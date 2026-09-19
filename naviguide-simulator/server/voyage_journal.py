@@ -40,7 +40,8 @@ SLOT_HOURS = (0, 6, 12, 18)
 BACKFILL_MAX_DAYS = 400          # toute l'expédition, jamais plus
 TICK_MIN_S = 60.0                # les GET publics ne réécrivent pas plus souvent
 NOTE_MAX_CHARS = 2000
-KINDS = ("position", "stop", "grib", "note", "zee", "amp", "poe", "wx")
+KINDS = ("position", "stop", "grib", "note", "zee", "amp", "poe", "wx", "chat")
+CHAT_MAX_CHARS = 1200
 WX_GALE_KT = 34.0   # Beaufort 8, the Cruise profile's gale
 WX_HS_M = 3.5       # a sea worth a line in the log
 
@@ -391,6 +392,28 @@ def add_note(text: str, now: datetime, *, author: str = "skipper", lang: str = "
     return entry
 
 
+def add_chat(question: str, answer: str, summary: str, now: datetime, *, lang: str = "fr", engine: str | None = None) -> dict:
+    """Un échange avec le journal de bord (lot D) : horodatage, question,
+    réponse, résumé. Écrit tel quel — le LLM a répondu, le journal se souvient."""
+    q = " ".join(str(question or "").split())[:CHAT_MAX_CHARS]
+    a = " ".join(str(answer or "").split())[:CHAT_MAX_CHARS]
+    if not q or not a:
+        raise ValueError("échange vide")
+    entry = {
+        "id": f"chat:{uuid.uuid4().hex[:12]}",
+        "kind": "chat",
+        "t": to_iso(now),
+        "question": q,
+        "answer": a,
+        "summary": " ".join(str(summary or "").split())[:300] or q[:120],
+        "lang": (lang or "fr")[:5],
+        "engine": (engine or None),
+        "basis": "human+llm",
+    }
+    _append([entry])
+    return entry
+
+
 # ── tick ────────────────────────────────────────────────────────────────────
 
 def tick(voy: Optional[dict], now: datetime, *, force: bool = False) -> Dict[str, Any]:
@@ -421,7 +444,7 @@ def tick(voy: Optional[dict], now: datetime, *, force: bool = False) -> Dict[str
     return out
 
 
-EVENT_KINDS = ("stop", "grib", "note", "zee", "amp", "poe", "wx")
+EVENT_KINDS = ("stop", "grib", "note", "zee", "amp", "poe", "wx", "chat")
 EVENTS_MAX = 800
 
 
